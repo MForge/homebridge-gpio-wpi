@@ -24,11 +24,16 @@ Example `config.json`
       "accessory": "MyGPIO",
         "name": "GPIO2",
         "pin": 27,
-        "duration": 4000
+        "duration": 4000,
+        "inverted": "false"
     }
   ]
 }
 ```
+Setting "inverted" to "true" reverses the behaviour of the GPIO output
+ i.e. the switch is considered "On" if the value is 0, and "Off" is 1.  This
+ may be useful for some relay boards where the logic is reversed.
+
 
 ## Pin Configuration
 You need to configure the relevant GPIO pins using the [gpio utility](https://projects.drogon.net/raspberry-pi/wiringpi/the-gpio-utility/

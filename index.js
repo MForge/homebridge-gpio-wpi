@@ -13,6 +13,10 @@ function GPIOAccessory(log, config) {
     this.name = config['name'];
     this.pin = config['pin'];
     this.duration = config['duration'];
+
+    //Config option to invert behaviour of GPIO output - i.e. 0 = On, 1 = Off.
+    this.inverted = ( config['inverted'] === "true" );
+
     this.service = new Service.Switch(this.name);
 
     if (!this.pin) throw new Error('You must provide a config value for pin.');
@@ -32,25 +36,29 @@ GPIOAccessory.prototype.getServices = function() {
 }
 
 GPIOAccessory.prototype.getOn = function(callback) {
-    var on = wpi.digitalRead(this.pin);
+    // inverted XOR pin_value
+    var on = ( this.inverted != wpi.digitalRead(this.pin) );
     callback(null, on);
 }
 
 GPIOAccessory.prototype.setOn = function(on, callback) {
+    // Handle inverted configurations by evaluating the
+    //  inverse of the inverted config bool, multipled by 1 to
+    //  give a 1 or 0 result for pinAction
     if (on) {
-        this.pinAction(1);
+        this.pinAction(!this.inverted * 1);
         if (is_defined(this.duration) && is_int(this.duration)) {
             this.pinTimer()
         }
         callback(null);
     } else {
-        this.pinAction(0);
+        this.pinAction(this.inverted * 1);
         callback(null);
     }
 }
 
 GPIOAccessory.prototype.pinAction = function(action) {
-    this.log('Turning ' + (action == 1 ? 'on' : 'off') + ' pin #' + this.pin);
+    this.log('Turning ' + (action == (!this.inverted * 1) ? 'on' : 'off') + ' pin #' + this.pin);
 
     var self = this;
     wpi.digitalWrite(self.pin, action);
@@ -61,7 +69,7 @@ GPIOAccessory.prototype.pinAction = function(action) {
 GPIOAccessory.prototype.pinTimer = function() {
     var self = this;
     setTimeout(function() {
-        self.pinAction(0);
+        self.pinAction(this.inverted * 1);
     }, this.duration);
 }
 
