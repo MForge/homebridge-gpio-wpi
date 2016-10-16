@@ -21,7 +21,7 @@ Example `config.json`
 {
   "accessories": [
     {
-      "accessory": "MyGPIO",
+      "accessory": "GPIO",
         "name": "GPIO2",
         "pin": 27,
         "duration": 4000,
