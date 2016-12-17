@@ -1,4 +1,7 @@
 var wpi = require("wiring-pi");
+var cpu = require("proc-cpuinfo")();
+var gpioExports = require("./readExports.js")();
+
 var Service, Characteristic;
 
 module.exports = function(homebridge) {
@@ -18,11 +21,27 @@ function GPIOAccessory(log, config) {
     this.inverted = ( config['inverted'] === "true" );
 
     this.service = new Service.Switch(this.name);
+    this.informationService = new Service.AccessoryInformation();
 
-    if (!this.pin) throw new Error('You must provide a config value for pin.');
+    if (!this.pin) throw new Error('Pin not configured.');
+
+    var currentPinStatus = gpioExports.find(function(el) { return el.pin === currentPin; });
+
+    if(currentPinStatus.error) {
+      throw new Error('Pin ' + this.pin + ' is not readable.  Did you run gpio export as the right user?')
+    } else {
+      if (currentPinStatus.direction != 'out') {
+        throw new Error('Pin' + this.pin + ' is not configured for OUTPUT.  Run gpio mode ' + this.pin + ' out')
+      }
+    }
 
     //Use pin numbering based on /sys/class/gpio exports (non-root)
     wpi.setup('sys');
+
+    this.informationService
+      .setCharacteristic(Characteristic.Manufacturer, cpu['Hardware'])
+      .setCharacteristic(Characteristic.Model, cpu['Revision'])
+      .setCharacteristic(Characteristic.SerialNumber, cpu['Serial'])
 
     this.service
         .getCharacteristic(Characteristic.On)
@@ -32,7 +51,7 @@ function GPIOAccessory(log, config) {
 }
 
 GPIOAccessory.prototype.getServices = function() {
-    return [this.service];
+    return [this.informationService, this.service];
 }
 
 GPIOAccessory.prototype.getOn = function(callback) {

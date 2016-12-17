@@ -6,15 +6,18 @@ Based on [homebrige-gpio](https://github.com/jamesblanksby/homebridge-gpio)
 Uses wiringPi as a back end to give non-root access to GPIO.
 
 ## Requirements
+
 -	[Homebridge](https://github.com/nfarina/homebridge) - _HomeKit support for the impatient_
 -	[wiring-pi](https://github.com/eugeneware/wiring-pi) - _Node.js bindings to wiringPi_
 
 ## Installation
+
 1.	Install Homebridge using `npm install -g homebridge`
 2.	Install this plugin `npm install -g homebridge-gpio-wpi`
 3.	Update your configuration file - see `sample-config.json` in this repo
 
 ## Configuration
+
 Example `config.json`
 
 ```json
@@ -30,16 +33,17 @@ Example `config.json`
   ]
 }
 ```
+
 Setting "inverted" to "true" reverses the behaviour of the GPIO output
  i.e. the switch is considered "On" if the value is 0, and "Off" is 1.  This
  may be useful for some relay boards where the logic is reversed.
 
-
 ## Pin Configuration
+
 You need to configure the relevant GPIO pins using the [gpio utility](https://projects.drogon.net/raspberry-pi/wiringpi/the-gpio-utility/
 ) included with wiringPi.
 
-```
+```Shell
 $ gpio readall
  +-----+-----+---------+------+---+---Pi 2---+---+------+---------+-----+-----+
  | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
@@ -68,17 +72,31 @@ $ gpio readall
  | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
  +-----+-----+---------+------+---+---Pi 2---+---+------+---------+-----+-----+
 ```
+
  The pin number specified in the config.json file is the BCM pin number in this table.
 
  When configuring the pins using GPIO, you can use the -g option to avoid confusion!
 
-```
- $ gpio -g mode 27 out   <-- Set OUTput mode
- $ gpio -g mode 27 down  <-- Set pull-down resistor
- $ gpio export 27 out    <-- Export the pin to /sys/class/gpio
+```Shell
+$ gpio -g mode 27 out   <-- Set OUTput mode
+$ gpio -g mode 27 down  <-- Set pull-down resistor
+$ gpio export 27 out    <-- Export the pin to /sys/class/gpio
 ```
 
  The gpio tool is setuid root, so should be run as the user that runs Homebridge.
+ See the [`set-gpio.sh`](set-gpio.sh) script as an example.
+
+## Troubleshooting
+
+### Homebridge reports no errors, but nothing is switched on or off
+
+ Check the permissions in /sys/class/gpio/gpioXX.  You should run the `set-gpio.sh`
+ script as the homebridge user, or ensure that the user is a member of the gpio
+ group.
+
+ ```Shell
+  $ sudo usermod -G gpio homebridge
+ ```
 
 ## Licence
 
