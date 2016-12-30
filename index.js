@@ -61,9 +61,6 @@ GPIOAccessory.prototype.getOn = function(callback) {
 }
 
 GPIOAccessory.prototype.setOn = function(on, callback) {
-    // Handle inverted configurations by evaluating the
-    //  inverse of the inverted config bool, multipled by 1 to
-    //  give a 1 or 0 result for pinAction
     if (on) {
         this.pinAction(!this.inverted * 1);
         if (is_defined(this.duration) && is_int(this.duration)) {
@@ -88,8 +85,9 @@ GPIOAccessory.prototype.pinAction = function(action) {
 GPIOAccessory.prototype.pinTimer = function() {
     var self = this;
     setTimeout(function() {
-        self.pinAction(this.inverted * 1);
-    }, this.duration);
+        self.log('Timer expired ' + self.duration + 'ms');
+        self.pinAction(self.inverted * 1);
+    }, self.duration);
 }
 
 var is_int = function(n) {
