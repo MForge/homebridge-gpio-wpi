@@ -5,7 +5,7 @@ const SYSFS_GPIO = '/sys/class/gpio/gpio';
 
 module.exports = function() {
     var gpioexports = [];
-
+    console.log("Reading exports...");
     for(var i=0; i < MAX_GPIO; ++i){
       try {
           fs.accessSync(SYSFS_GPIO + i, fs.F_OK);
@@ -15,8 +15,8 @@ module.exports = function() {
 
           var gpio = {
             'pin': i,
-            'direction': direction,
-            'value': value
+            'direction': direction.trim(),
+            'value': value.trim()
           };
 
           console.log(gpio);

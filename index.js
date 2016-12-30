@@ -22,16 +22,16 @@ function GPIOAccessory(log, config) {
 
     this.service = new Service.Switch(this.name);
     this.informationService = new Service.AccessoryInformation();
-
+    
     if (!this.pin) throw new Error('Pin not configured.');
-
-    var currentPinStatus = gpioExports.find(function(el) { return el.pin === currentPin; });
-
+    var currentPin = this.pin;
+    var currentPinStatus = gpioExports.find( p => p.pin === currentPin );
+    
     if(currentPinStatus.error) {
       throw new Error('Pin ' + this.pin + ' is not readable.  Did you run gpio export as the right user?')
     } else {
       if (currentPinStatus.direction != 'out') {
-        throw new Error('Pin' + this.pin + ' is not configured for OUTPUT.  Run gpio mode ' + this.pin + ' out')
+        throw new Error('Pin ' + this.pin + ' is not configured for OUTPUT.  Run gpio mode ' + this.pin + ' out')
       }
     }
 
