@@ -1,5 +1,6 @@
 var wpi = require("wiring-pi");
 var cpu = require("proc-cpuinfo")();
+var pkginfo = require("./package.json");
 var gpioExports = require("./readExports.js")();
 
 var Service, Characteristic;
@@ -22,6 +23,8 @@ function GPIOAccessory(log, config) {
 
     this.service = new Service.Switch(this.name);
     this.informationService = new Service.AccessoryInformation();
+
+    this.log("Configuring accessory %s (homebridge-gpio-wpi version %s)", this.name, pkginfo.version);
     
     if (!this.pin) throw new Error('Pin not configured.');
     var currentPin = this.pin;
@@ -31,7 +34,7 @@ function GPIOAccessory(log, config) {
       throw new Error('Pin ' + this.pin + ' is not readable.  Did you run gpio export as the right user?')
     } else {
       if (currentPinStatus.direction != 'out') {
-        throw new Error('Pin ' + this.pin + ' is not configured for OUTPUT.  Run gpio mode ' + this.pin + ' out')
+        throw new Error('Pin ' + this.pin + ' is not configured for OUTPUT.  Run gpio mode -g ' + this.pin + ' out')
       }
     }
 
@@ -39,15 +42,14 @@ function GPIOAccessory(log, config) {
     wpi.setup('sys');
 
     this.informationService
-      .setCharacteristic(Characteristic.Manufacturer, cpu['Hardware'])
-      .setCharacteristic(Characteristic.Model, cpu['Revision'])
-      .setCharacteristic(Characteristic.SerialNumber, cpu['Serial'])
+      .setCharacteristic(Characteristic.Manufacturer, cpu['Hardware'] || "Default-Manufacturer")
+      .setCharacteristic(Characteristic.Model, cpu['Revision'] || "Default-Model")
+      .setCharacteristic(Characteristic.SerialNumber, cpu['Serial'] || "Default-SerialNumber");
 
     this.service
         .getCharacteristic(Characteristic.On)
         .on('get', this.getOn.bind(this))
         .on('set', this.setOn.bind(this));
-
 }
 
 GPIOAccessory.prototype.getServices = function() {
@@ -90,8 +92,9 @@ GPIOAccessory.prototype.pinTimer = function() {
     }, self.duration);
 }
 
+// Check value is a +ve integer
 var is_int = function(n) {
-    return n % 1 === 0;
+    return (n > 0) && (n % 1 === 0);
 }
 
 var is_defined = function(v) {
