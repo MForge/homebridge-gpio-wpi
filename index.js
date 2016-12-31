@@ -30,10 +30,10 @@ function GPIOAccessory(log, config) {
     var currentPinStatus = gpioExports.find( p => p.pin === currentPin );
     
     if(currentPinStatus.error) {
-      throw new Error('Pin ' + this.pin + ' is not readable.  Did you run gpio export as the right user?')
+      throw new Error('Pin %s is not readable (%s).  Did you run gpio export as the right user?', this.pin, currentPinStatus.error.code);
     } else {
       if (currentPinStatus.direction != 'out') {
-        throw new Error('Pin ' + this.pin + ' is not configured for OUTPUT.  Run gpio mode -g ' + this.pin + ' out')
+        throw new Error('Pin %s is not configured for OUTPUT.  Run gpio mode -g %s out', this.pin, this.pin);
       }
     }
 

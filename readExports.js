@@ -21,10 +21,8 @@ module.exports = function() {
           gpioexports.push(gpio);
 
       } catch (e) {
-        if(e.code != 'ENOENT') {
           var gpio = { 'pin': i, 'error': e.code };
           gpioexports.push(gpio);
-        }
       }
     }
 
