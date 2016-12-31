@@ -1,5 +1,4 @@
 var wpi = require("wiring-pi");
-var cpu = require("proc-cpuinfo")();
 var pkginfo = require("./package.json");
 var gpioExports = require("./readExports.js")();
 
@@ -41,10 +40,6 @@ function GPIOAccessory(log, config) {
     //Use pin numbering based on /sys/class/gpio exports (non-root)
     wpi.setup('sys');
 
-    this.informationService
-      .setCharacteristic(Characteristic.Manufacturer, cpu['Hardware'] || "Default-Manufacturer")
-      .setCharacteristic(Characteristic.Model, cpu['Revision'] || "Default-Model")
-      .setCharacteristic(Characteristic.SerialNumber, cpu['Serial'] || "Default-SerialNumber");
 
     this.service
         .getCharacteristic(Characteristic.On)
@@ -53,7 +48,7 @@ function GPIOAccessory(log, config) {
 }
 
 GPIOAccessory.prototype.getServices = function() {
-    return [this.informationService, this.service];
+    return [this.service];
 }
 
 GPIOAccessory.prototype.getOn = function(callback) {
