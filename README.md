@@ -5,6 +5,10 @@ Supports triggering General Purpose Input Output (GPIO) pins on the Raspberry Pi
 Based on [homebrige-gpio](https://github.com/jamesblanksby/homebridge-gpio)
 Uses wiringPi as a back end to give non-root access to GPIO.
 
+# DEPRECATED
+
+No more development on this module - consider migrating to [homebridge-gpio-wpi2](https://github.com/rsg98/homebridge-gpio-wpi2) instead
+
 ## Requirements
 
 -	[Homebridge](https://github.com/nfarina/homebridge) - _HomeKit support for the impatient_
